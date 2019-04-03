@@ -1,5 +1,9 @@
 This project was bootstrapped with [Create React App](https://github.com/facebook/create-react-app).
 
+The dashboard layout is coming from https://github.com/mui-org/material-ui/tree/master/docs/src/pages/getting-started/page-layout-examples/dashboard. 
+
+----
+
 ## Available Scripts
 
 In the project directory, you can run:
