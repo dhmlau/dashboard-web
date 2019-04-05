@@ -13,20 +13,51 @@ class SimpleLineChart extends React.Component {
     super();
     this.state = {
       data: [],
+      dates: []
+    }
+
+    const MONTHS_IN_TEXT = ['JAN', 'FEB', 'MAR','APR', 'MAY', 'JUN', 'JUL', 'AUG', 'SEP', 'OCT', 'NOV', 'DEC'];
+
+    // FIXME supposedly it shouldn't be limited to the current year
+    var currentYear = new Date().getFullYear();
+
+    var i;
+    var firstDayOfMonth;
+    var lastDayOfMonth;
+    var dateEntry = {};
+    for (i=0; i<12; i++) {
+      firstDayOfMonth = new Date(currentYear, i, 1).toISOString().slice(0, 10);
+      lastDayOfMonth = new Date(currentYear, i+1, 0).toISOString().slice(0, 10);
+      dateEntry = {
+        label: MONTHS_IN_TEXT[i],
+        firstDayOfMonth: firstDayOfMonth,
+        lastDayOfMonth: lastDayOfMonth,
+      }
+      this.state.dates[i] = dateEntry;
+     
     }
   }
 
-  async componentDidMount() {
-  // componentDidMount() {
-    let resultJSON = await (await fetch('http://localhost:3001/pr/strongloop%2Floopback-next/2019-02-01/2019-02-28')).json();
-    let result2JSON = await (await fetch('http://localhost:3001/pr/strongloop%2Floopback-next/2019-03-01/2019-03-31')).json();
 
-    console.log('resultJSON', resultJSON);
-    let data = [
-      { name: 'Feb', total_count: resultJSON.total_count, count_maintainers: resultJSON.count_maintainers, count_community: result2JSON.count_community },
-      { name: 'Mar', total_count: result2JSON.total_count, count_maintainers: result2JSON.count_maintainers, count_community: resultJSON.count_community },
-    ];
+
+  async componentDidMount() {
+    let data = [];
+
+    //will get data for the current month and before, but not after
+    let index = new Date().getMonth(); 
+
+    var i;
+    var url;
+    for (i=0 ; i<index; i++) {
+      var firstDay = this.state.dates[i].firstDayOfMonth;
+      var lastDay = this.state.dates[i].lastDayOfMonth;
+      url = `http://localhost:3001/pr/strongloop%2Floopback-next/${firstDay}/${lastDay}`;
+      data[i] = await (await fetch(url)).json();
+      data[i].name = this.state.dates[i].label;
+    }
+    
     this.setState({data: data});
+    
   }
   render() {
     return (
@@ -46,4 +77,5 @@ class SimpleLineChart extends React.Component {
     );
   }
 }
+
 export default SimpleLineChart;
